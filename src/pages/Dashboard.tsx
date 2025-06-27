@@ -97,30 +97,6 @@ const Dashboard = () => {
     }
   ];
 
-  const issuesData = [
-    {
-      title: 'Policies where multiple float...',
-      status: 'no issues found',
-      details: null
-    },
-    {
-      title: 'Double payment',
-      status: 'issues found',
-      details: {
-        traceNo: 'XXXXXXX',
-        referenceId: 'XXXXXXX'
-      }
-    },
-    {
-      title: 'Different refund mode',
-      status: 'issues found',
-      details: {
-        receiptNo: 'XXXXXXXXXXXXXXX',
-        refundModel: 'Transfer'
-      }
-    }
-  ];
-
   const criticalAlerts = [
     {
       type: 'Amount mismatch',
@@ -141,6 +117,26 @@ const Dashboard = () => {
       receiptNo: 'XXXXXXXXXXXXXXX',
       untouchedAmount: '4630',
       priority: 'HIGH'
+    },
+    {
+      type: 'Policies where multiple float...',
+      category: 'Policy issues',
+      status: 'no issues found',
+      priority: 'LOW'
+    },
+    {
+      type: 'Double payment',
+      category: 'Payment issues',
+      traceNo: 'XXXXXXX',
+      referenceId: 'XXXXXXX',
+      priority: 'HIGH'
+    },
+    {
+      type: 'Different refund mode',
+      category: 'Refund issues',
+      receiptNo: 'XXXXXXXXXXXXXXX',
+      refundModel: 'Transfer',
+      priority: 'MEDIUM'
     }
   ];
 
@@ -222,7 +218,7 @@ const Dashboard = () => {
               </div>
 
               {/* Process Flow Cards */}
-              <div className="grid grid-cols-5 gap-4 mb-8">
+              <div className="grid grid-cols-5 gap-4">
                 {processFlowData.map((process, index) => (
                   <div key={index} className="space-y-2">
                     <div className={`${process.color} rounded-lg p-4 text-white relative`}>
@@ -239,49 +235,6 @@ const Dashboard = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Issues Section */}
-              <div className="grid grid-cols-3 gap-4">
-                {issuesData.map((issue, index) => (
-                  <div key={index} className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                    <div className="flex items-start gap-2 mb-3">
-                      <List className="w-4 h-4 text-slate-400 mt-1" />
-                      <h4 className="text-white font-medium text-sm">{issue.title}</h4>
-                    </div>
-                    
-                    {issue.status === 'no issues found' ? (
-                      <div className="text-green-400 text-sm">no issues found</div>
-                    ) : (
-                      <div className="space-y-2">
-                        {issue.details?.traceNo && (
-                          <div className="text-sm">
-                            <span className="text-red-400">Trace no: </span>
-                            <span className="text-red-400 bg-red-900/20 px-1 rounded">{issue.details.traceNo}</span>
-                          </div>
-                        )}
-                        {issue.details?.referenceId && (
-                          <div className="text-sm">
-                            <span className="text-red-400">Reference id: </span>
-                            <span className="text-red-400 bg-red-900/20 px-1 rounded">{issue.details.referenceId}</span>
-                          </div>
-                        )}
-                        {issue.details?.receiptNo && (
-                          <div className="text-sm">
-                            <span className="text-red-400">Receipt no: </span>
-                            <span className="text-red-400 bg-red-900/20 px-1 rounded">{issue.details.receiptNo}</span>
-                          </div>
-                        )}
-                        {issue.details?.refundModel && (
-                          <div className="text-sm">
-                            <span className="text-red-400">Refund model: </span>
-                            <span className="text-slate-300">{issue.details.refundModel}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -292,7 +245,7 @@ const Dashboard = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-white">Latest Critical alerts</CardTitle>
-                <Badge variant="destructive" className="bg-red-600">3 Active</Badge>
+                <Badge variant="destructive" className="bg-red-600">6 Active</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -317,16 +270,16 @@ const Dashboard = () => {
                     </Badge>
                   </div>
                   
-                  {alert.type === 'Amount mismatch' && (
+                  {alert.status === 'no issues found' ? (
                     <div className="text-green-400 text-sm">no issues found</div>
-                  )}
-                  
-                  {alert.receiptNo && (
+                  ) : (
                     <div className="space-y-1 text-sm text-slate-300 mb-3">
-                      <div>
-                        <span className="text-red-400">Receipt no: </span>
-                        <span className="text-red-400 bg-red-900/20 px-1 rounded">{alert.receiptNo}</span>
-                      </div>
+                      {alert.receiptNo && (
+                        <div>
+                          <span className="text-red-400">Receipt no: </span>
+                          <span className="text-red-400 bg-red-900/20 px-1 rounded">{alert.receiptNo}</span>
+                        </div>
+                      )}
                       {alert.residueAmount && (
                         <div>
                           <span className="text-red-400">Residue amount: </span>
@@ -337,6 +290,24 @@ const Dashboard = () => {
                         <div>
                           <span className="text-red-400">Untouched amount: </span>
                           <span className="text-slate-300">{alert.untouchedAmount}</span>
+                        </div>
+                      )}
+                      {alert.traceNo && (
+                        <div>
+                          <span className="text-red-400">Trace no: </span>
+                          <span className="text-red-400 bg-red-900/20 px-1 rounded">{alert.traceNo}</span>
+                        </div>
+                      )}
+                      {alert.referenceId && (
+                        <div>
+                          <span className="text-red-400">Reference id: </span>
+                          <span className="text-red-400 bg-red-900/20 px-1 rounded">{alert.referenceId}</span>
+                        </div>
+                      )}
+                      {alert.refundModel && (
+                        <div>
+                          <span className="text-red-400">Refund model: </span>
+                          <span className="text-slate-300">{alert.refundModel}</span>
                         </div>
                       )}
                     </div>
