@@ -1,17 +1,18 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   CreditCard, 
   Receipt, 
   Shield, 
   Target, 
   AlertTriangle,
-  TrendingUp,
-  Clock,
-  Database
+  Database,
+  Calendar,
+  ChevronDown,
+  List
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -58,39 +59,94 @@ const Dashboard = () => {
     { label: 'Volume at Risk', value: '₹47.2M' }
   ];
 
-  const alerts = [
+  const processFlowData = [
     {
-      title: 'Amount Mismatch Critical',
-      id: 'TXN-2024-847291',
-      impact: '₹2.3M',
-      payment: '₹2,350,000',
-      receipt: '₹2,300,000',
-      priority: 'HIGH',
-      color: 'border-red-500'
+      title: 'Payment Successful',
+      count: '241k',
+      totalAmount: '1.51G',
+      color: 'bg-teal-600',
+      section: 'Policy to payment stages(Online and Opus collection)'
     },
     {
-      title: 'Virgin Receipt Batch',
-      count: '58 receipts',
-      value: '₹12.4M',
-      age: '2.5 hours',
-      sla: 'Breach in 30m',
-      priority: 'MEDIUM',
-      color: 'border-yellow-500'
+      title: 'Receipt Generated',
+      count: '241.2k',
+      totalAmount: '1.51G',
+      color: 'bg-teal-600',
+      section: 'Policy to payment stages(Online and Opus collection)'
     },
     {
-      title: 'Status Synchronization',
-      affected: '23 transactions',
-      dbStatus: 'Pending',
-      realStatus: 'Completed',
-      duration: '45 minutes',
-      priority: 'HIGH',
-      color: 'border-red-500'
+      title: 'Policy Created',
+      count: '253k',
+      totalAmount: '1.24G',
+      color: 'bg-teal-400',
+      section: 'Policy to payment stages(Online and Opus collection)'
+    },
+    {
+      title: 'Refund Processed',
+      count: '4.06k',
+      totalAmount: '14.7M',
+      color: 'bg-teal-600',
+      section: 'Payment to policy'
+    },
+    {
+      title: 'Claim Processed',
+      count: '25.71k',
+      totalAmount: '3.12G',
+      color: 'bg-teal-600',
+      section: 'Payment to policy'
+    }
+  ];
+
+  const issuesData = [
+    {
+      title: 'Policies where multiple float...',
+      status: 'no issues found',
+      details: null
+    },
+    {
+      title: 'Double payment',
+      status: 'issues found',
+      details: {
+        traceNo: 'XXXXXXX',
+        referenceId: 'XXXXXXX'
+      }
+    },
+    {
+      title: 'Different refund mode',
+      status: 'issues found',
+      details: {
+        receiptNo: 'XXXXXXXXXXXXXXX',
+        refundModel: 'Transfer'
+      }
+    }
+  ];
+
+  const criticalAlerts = [
+    {
+      type: 'Amount mismatch',
+      category: 'Amount mismatch table',
+      status: 'no issues found',
+      priority: 'LOW'
+    },
+    {
+      type: 'Receipt residue',
+      category: 'Receipt residue table',
+      receiptNo: 'XXXXXXXXXXXXXXX',
+      residueAmount: '677',
+      priority: 'MEDIUM'
+    },
+    {
+      type: 'Oldest untouched receipt',
+      category: 'Untouched ...',
+      receiptNo: 'XXXXXXXXXXXXXXX',
+      untouchedAmount: '4630',
+      priority: 'HIGH'
     }
   ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6">
-      {/* Header */}
+      {/* Header - keep existing code */}
       <div className="mb-8">
         <div className="flex justify-between items-start mb-2">
           <div>
@@ -113,13 +169,13 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Payment Flow Analysis */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Left Column - Payment Flow Analysis (3/4 width) */}
+        <div className="lg:col-span-3 space-y-6">
           <Card className="bg-slate-900 border-slate-800">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle className="text-white">Payment Flow Analysis</CardTitle>
+                <CardTitle className="text-white text-xl">Payment Flow Analysis</CardTitle>
                 <div className="flex gap-2">
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Timeline</Button>
                   <Button size="sm" variant="outline" className="border-slate-600 text-slate-300">Network</Button>
@@ -127,33 +183,102 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {metrics.map((metric, index) => (
-                  <div key={index} className="relative">
-                    <div className={`${metric.color} rounded-2xl p-4 text-white relative overflow-hidden`}>
-                      {metric.alerts > 0 && (
-                        <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                          {metric.alerts}
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between mb-2">
-                        <metric.icon className="w-8 h-8" />
-                      </div>
-                      <div className="mb-1">
-                        <div className="text-xl font-bold">{metric.value}</div>
-                        <div className="text-sm opacity-80">{metric.subtitle}</div>
-                      </div>
+              {/* Date Filters */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-slate-800 p-3 rounded-lg">
+                  <label className="text-sm text-slate-400 mb-2 block">Individual txn date</label>
+                  <Button variant="outline" className="w-full justify-between border-slate-600 text-slate-300">
+                    <Calendar className="w-4 h-4" />
+                    Select date range
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="bg-slate-800 p-3 rounded-lg">
+                  <label className="text-sm text-slate-400 mb-2 block">Refund date</label>
+                  <Button variant="outline" className="w-full justify-between border-slate-600 text-slate-300">
+                    <Calendar className="w-4 h-4" />
+                    Select date range
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="bg-slate-800 p-3 rounded-lg">
+                  <label className="text-sm text-slate-400 mb-2 block">Claim date</label>
+                  <Button variant="outline" className="w-full justify-between border-slate-600 text-slate-300">
+                    <Calendar className="w-4 h-4" />
+                    Select date range
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Section Headers */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-slate-800 p-3 rounded-lg">
+                  <h3 className="text-white font-medium">Policy to payment stages(Online and Opus collection)</h3>
+                </div>
+                <div className="bg-slate-800 p-3 rounded-lg">
+                  <h3 className="text-white font-medium">Payment to policy</h3>
+                </div>
+              </div>
+
+              {/* Process Flow Cards */}
+              <div className="grid grid-cols-5 gap-4 mb-8">
+                {processFlowData.map((process, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className={`${process.color} rounded-lg p-4 text-white relative`}>
+                      <h3 className="font-bold text-lg mb-4">{process.title}</h3>
                     </div>
-                    <div className="text-center mt-2 text-white font-medium">{metric.title}</div>
+                    <div className="bg-white text-black p-3 rounded-lg space-y-1">
+                      <div className="text-xs text-gray-600">Count</div>
+                      <div className="font-bold text-lg text-blue-600">{process.count}</div>
+                    </div>
+                    <div className="bg-white text-black p-3 rounded-lg space-y-1">
+                      <div className="text-xs text-gray-600">Total amount</div>
+                      <div className="font-bold text-lg text-blue-600">{process.totalAmount}</div>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
-                {bottomMetrics.map((metric, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-white mb-1">{metric.value}</div>
-                    <div className="text-sm text-slate-400">{metric.label}</div>
+              {/* Issues Section */}
+              <div className="grid grid-cols-3 gap-4">
+                {issuesData.map((issue, index) => (
+                  <div key={index} className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                    <div className="flex items-start gap-2 mb-3">
+                      <List className="w-4 h-4 text-slate-400 mt-1" />
+                      <h4 className="text-white font-medium text-sm">{issue.title}</h4>
+                    </div>
+                    
+                    {issue.status === 'no issues found' ? (
+                      <div className="text-green-400 text-sm">no issues found</div>
+                    ) : (
+                      <div className="space-y-2">
+                        {issue.details?.traceNo && (
+                          <div className="text-sm">
+                            <span className="text-red-400">Trace no: </span>
+                            <span className="text-red-400 bg-red-900/20 px-1 rounded">{issue.details.traceNo}</span>
+                          </div>
+                        )}
+                        {issue.details?.referenceId && (
+                          <div className="text-sm">
+                            <span className="text-red-400">Reference id: </span>
+                            <span className="text-red-400 bg-red-900/20 px-1 rounded">{issue.details.referenceId}</span>
+                          </div>
+                        )}
+                        {issue.details?.receiptNo && (
+                          <div className="text-sm">
+                            <span className="text-red-400">Receipt no: </span>
+                            <span className="text-red-400 bg-red-900/20 px-1 rounded">{issue.details.receiptNo}</span>
+                          </div>
+                        )}
+                        {issue.details?.refundModel && (
+                          <div className="text-sm">
+                            <span className="text-red-400">Refund model: </span>
+                            <span className="text-slate-300">{issue.details.refundModel}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -161,63 +286,68 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Right Column - Critical Alerts */}
+        {/* Right Column - Critical Alerts (1/4 width) */}
         <div className="space-y-6">
           <Card className="bg-slate-900 border-slate-800">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle className="text-white">Critical Alerts</CardTitle>
-                <Badge variant="destructive" className="bg-red-600">15 Active</Badge>
+                <CardTitle className="text-white">Latest Critical alerts</CardTitle>
+                <Badge variant="destructive" className="bg-red-600">3 Active</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {alerts.map((alert, index) => (
-                <div key={index} className={`border-l-4 ${alert.color} bg-slate-800/50 p-4 rounded-r-lg`}>
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-white">{alert.title}</h3>
+              {criticalAlerts.map((alert, index) => (
+                <div key={index} className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-white text-sm">{alert.type}</h3>
+                      <div className="text-xs text-slate-400 border-b border-green-500 inline-block">
+                        {alert.category}
+                      </div>
+                    </div>
                     <Badge 
-                      variant={alert.priority === 'HIGH' ? 'destructive' : 'secondary'}
-                      className={alert.priority === 'HIGH' ? 'bg-red-600' : 'bg-yellow-600'}
+                      variant={alert.priority === 'HIGH' ? 'destructive' : alert.priority === 'MEDIUM' ? 'secondary' : 'outline'}
+                      className={
+                        alert.priority === 'HIGH' ? 'bg-red-600' : 
+                        alert.priority === 'MEDIUM' ? 'bg-yellow-600' : 
+                        'bg-green-600'
+                      }
                     >
                       {alert.priority}
                     </Badge>
                   </div>
                   
-                  {alert.id && (
+                  {alert.type === 'Amount mismatch' && (
+                    <div className="text-green-400 text-sm">no issues found</div>
+                  )}
+                  
+                  {alert.receiptNo && (
                     <div className="space-y-1 text-sm text-slate-300 mb-3">
-                      <div>ID: <span className="font-mono">{alert.id}</span></div>
-                      <div>Impact: <span className="text-red-400 font-semibold">{alert.impact}</span></div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>Payment: {alert.payment}</div>
-                        <div>Receipt: {alert.receipt}</div>
+                      <div>
+                        <span className="text-red-400">Receipt no: </span>
+                        <span className="text-red-400 bg-red-900/20 px-1 rounded">{alert.receiptNo}</span>
                       </div>
-                    </div>
-                  )}
-                  
-                  {alert.count && (
-                    <div className="space-y-1 text-sm text-slate-300 mb-3">
-                      <div>Count: {alert.count}</div>
-                      <div>Value: {alert.value}</div>
-                      <div>Age: {alert.age}</div>
-                      <div>SLA: <span className="text-yellow-400">{alert.sla}</span></div>
-                    </div>
-                  )}
-                  
-                  {alert.affected && (
-                    <div className="space-y-1 text-sm text-slate-300 mb-3">
-                      <div>Affected: {alert.affected}</div>
-                      <div>DB Status: {alert.dbStatus}</div>
-                      <div>Real Status: {alert.realStatus}</div>
-                      <div>Duration: {alert.duration}</div>
+                      {alert.residueAmount && (
+                        <div>
+                          <span className="text-red-400">Residue amount: </span>
+                          <span className="text-slate-300">{alert.residueAmount}</span>
+                        </div>
+                      )}
+                      {alert.untouchedAmount && (
+                        <div>
+                          <span className="text-red-400">Untouched amount: </span>
+                          <span className="text-slate-300">{alert.untouchedAmount}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs">
-                      {alert.id ? 'Investigate' : alert.count ? 'Trigger Policy Gen' : 'Force Sync'}
+                      Investigate
                     </Button>
                     <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 text-xs">
-                      {alert.id ? 'Auto-Reconcile' : alert.count ? 'Escalate' : 'Manual Review'}
+                      Review
                     </Button>
                   </div>
                 </div>
