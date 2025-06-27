@@ -7,13 +7,17 @@ import ProcessFlowCards from './ProcessFlowCards';
 
 const PaymentFlowAnalysis = () => {
   return (
-    <Card className="bg-slate-900 border-slate-800">
+    <Card className="bg-slate-900/80 border-slate-700/50 shadow-xl">
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-white text-xl">Payment Flow Analysis</CardTitle>
           <div className="flex gap-2">
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Timeline</Button>
-            <Button size="sm" variant="outline" className="border-slate-600 text-slate-300">Network</Button>
+            <Button size="sm" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-500/25">
+              Timeline
+            </Button>
+            <Button size="sm" variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200">
+              Network
+            </Button>
           </div>
         </div>
       </CardHeader>

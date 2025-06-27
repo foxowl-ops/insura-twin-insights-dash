@@ -49,11 +49,13 @@ const CriticalAlerts = () => {
   ];
 
   return (
-    <Card className="bg-slate-900 border-slate-800">
+    <Card className="bg-slate-900/80 border-slate-700/50 shadow-xl">
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-white">Latest Critical alerts</CardTitle>
-          <Badge variant="destructive" className="bg-red-600">6 Active</Badge>
+          <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 shadow-lg shadow-red-500/25 animate-pulse">
+            6 Active
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
