@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Export } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 interface Alert {
   type: string;
@@ -122,7 +121,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
           onClick={handleExport}
           className="border-emerald-500 text-emerald-300 hover:bg-emerald-500/20 text-xs ml-auto"
         >
-          <Export className="w-3 h-3 mr-1" />
+          <Download className="w-3 h-3 mr-1" />
           Export
         </Button>
       </div>
