@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   Upload, 
   File, 
@@ -13,88 +14,145 @@ import {
   Trash2,
   ArrowLeft,
   Database,
-  FileText
+  FileSpreadsheet,
+  Clock
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
+interface DataFrameFile {
+  name: string;
+  description: string;
+  file?: File;
+  status: 'pending' | 'uploading' | 'uploaded' | 'error';
+  uploadedAt?: string;
+  records?: string;
+  size?: string;
+  progress?: number;
+}
+
 const DataUpload = () => {
   const { toast } = useToast();
-  const [uploadedFiles, setUploadedFiles] = useState([
-    {
-      name: 'payments.csv',
-      size: '2.4 MB',
-      records: '2,847',
-      status: 'uploaded',
-      uploadedAt: '2024-01-15 10:30:00'
-    },
-    {
-      name: 'receipts.csv',
-      size: '1.8 MB',
-      records: '2,789',
-      status: 'uploaded',
-      uploadedAt: '2024-01-15 10:28:00'
-    }
+  
+  const [dataFrames, setDataFrames] = useState<DataFrameFile[]>([
+    { name: 'payments', description: 'Payment transaction records', status: 'pending' },
+    { name: 'receipts', description: 'Receipt generation data', status: 'pending' },
+    { name: 'policies', description: 'Active policy information', status: 'pending' },
+    { name: 'claims', description: 'Claims processing data', status: 'pending' },
+    { name: 'customers', description: 'Customer information', status: 'pending' },
+    { name: 'agents', description: 'Agent details and commissions', status: 'pending' },
+    { name: 'audit_logs', description: 'System audit and logs', status: 'pending' }
   ]);
 
-  const expectedFiles = [
-    { name: 'payments.csv', description: 'Payment transaction records' },
-    { name: 'receipts.csv', description: 'Receipt generation data' },
-    { name: 'policies.csv', description: 'Active policy information' },
-    { name: 'claims.csv', description: 'Claims processing data' },
-    { name: 'customers.csv', description: 'Customer information' },
-    { name: 'agents.csv', description: 'Agent details and commissions' },
-    { name: 'audit_logs.csv', description: 'System audit and logs' }
-  ];
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      
-      // Simulate file upload and processing
+  const handleFileUpload = async (index: number, file: File) => {
+    if (!file.name.endsWith('.xlsx')) {
       toast({
-        title: "File Upload Started",
-        description: `Processing ${file.name}...`,
+        title: "Invalid File Type",
+        description: "Please upload only XLSX files.",
+        variant: "destructive",
       });
-
-      // Simulate API call delay
-      setTimeout(() => {
-        const newFile = {
-          name: file.name,
-          size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-          records: Math.floor(Math.random() * 5000).toString(),
-          status: 'uploaded',
-          uploadedAt: new Date().toLocaleString()
-        };
-
-        setUploadedFiles(prev => [...prev, newFile]);
-        
-        toast({
-          title: "File Uploaded Successfully",
-          description: `${file.name} has been processed and stored as dataframe.`,
-        });
-      }, 2000);
+      return;
     }
+
+    // Update status to uploading
+    setDataFrames(prev => prev.map((df, i) => 
+      i === index ? { ...df, file, status: 'uploading', progress: 0 } : df
+    ));
+
+    toast({
+      title: "Upload Started",
+      description: `Processing ${file.name} for ${dataFrames[index].name} dataframe...`,
+    });
+
+    // Simulate upload progress
+    const simulateProgress = () => {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // Complete the upload
+          setDataFrames(prev => prev.map((df, i) => 
+            i === index ? {
+              ...df,
+              status: 'uploaded',
+              uploadedAt: new Date().toLocaleString(),
+              records: Math.floor(Math.random() * 5000 + 1000).toString(),
+              size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+              progress: 100
+            } : df
+          ));
+
+          toast({
+            title: "Upload Successful",
+            description: `${file.name} has been processed and saved as ${dataFrames[index].name} dataframe.`,
+          });
+        } else {
+          setDataFrames(prev => prev.map((df, i) => 
+            i === index ? { ...df, progress } : df
+          ));
+        }
+      }, 200);
+    };
+
+    simulateProgress();
   };
 
-  const handleDeleteFile = (fileName: string) => {
-    setUploadedFiles(prev => prev.filter(file => file.name !== fileName));
+  const handleRemoveFile = (index: number) => {
+    const dataFrame = dataFrames[index];
+    setDataFrames(prev => prev.map((df, i) => 
+      i === index ? { 
+        name: df.name, 
+        description: df.description, 
+        status: 'pending' 
+      } : df
+    ));
+    
     toast({
-      title: "File Deleted",
-      description: `${fileName} has been removed from the system.`,
+      title: "File Removed",
+      description: `${dataFrame.name} dataframe has been cleared.`,
       variant: "destructive",
     });
   };
 
-  const getFileStatus = (fileName: string) => {
-    return uploadedFiles.find(file => file.name === fileName);
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'uploaded':
+        return (
+          <Badge className="bg-emerald-500 text-white">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Uploaded
+          </Badge>
+        );
+      case 'uploading':
+        return (
+          <Badge className="bg-blue-500 text-white">
+            <Clock className="w-3 h-3 mr-1" />
+            Processing
+          </Badge>
+        );
+      case 'error':
+        return (
+          <Badge className="bg-red-500 text-white">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Error
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="border-slate-600 text-slate-400">
+            Pending
+          </Badge>
+        );
+    }
   };
 
+  const uploadedCount = dataFrames.filter(df => df.status === 'uploaded').length;
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
@@ -106,173 +164,141 @@ const DataUpload = () => {
           </Link>
           <div className="h-6 border-l border-slate-600"></div>
           <div>
-            <h1 className="text-3xl font-bold text-white">Data Management</h1>
-            <p className="text-slate-400">Upload and manage CSV files for the payment system digital twin</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+              DataFrames Management
+            </h1>
+            <p className="text-slate-400">Upload XLSX files to create dataframes for the payment system digital twin</p>
           </div>
+        </div>
+        
+        {/* Progress Overview */}
+        <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 border border-slate-600 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-white font-medium">Upload Progress</span>
+            <span className="text-cyan-300">{uploadedCount}/7 DataFrames</span>
+          </div>
+          <Progress value={(uploadedCount / 7) * 100} className="h-2" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Upload Section */}
-        <div className="space-y-6">
-          <Card className="bg-slate-900 border-slate-800">
+      {/* DataFrames Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {dataFrames.map((dataFrame, index) => (
+          <Card key={dataFrame.name} className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-600/40 shadow-xl">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Upload className="w-5 h-5" />
-                Upload CSV Files
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-slate-600 transition-colors">
-                <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">Drop CSV files here</h3>
-                <p className="text-slate-400 mb-4">or click to browse and select files</p>
-                <Input
-                  type="file"
-                  multiple
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <Label htmlFor="file-upload">
-                  <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
-                    Select Files
-                  </Button>
-                </Label>
-              </div>
-              
-              <div className="mt-4 text-sm text-slate-400">
-                <p>• Supported format: CSV files only</p>
-                <p>• Maximum file size: 50MB per file</p>
-                <p>• Files will be automatically processed into dataframes</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Expected Files
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {expectedFiles.map((file, index) => {
-                  const uploadedFile = getFileStatus(file.name);
-                  return (
-                    <div key={index} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <File className="w-4 h-4 text-slate-400" />
-                        <div>
-                          <div className="font-medium text-white">{file.name}</div>
-                          <div className="text-sm text-slate-400">{file.description}</div>
-                        </div>
-                      </div>
-                      <div>
-                        {uploadedFile ? (
-                          <Badge className="bg-green-600">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Uploaded
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-slate-600 text-slate-400">
-                            Pending
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Uploaded Files Section */}
-        <div className="space-y-6">
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Database className="w-5 h-5" />
-                Uploaded Files ({uploadedFiles.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {uploadedFiles.length === 0 ? (
-                <div className="text-center py-8">
-                  <Database className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-slate-400">No files uploaded yet</p>
+              <CardTitle className="text-white flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-cyan-400" />
+                  {dataFrame.name}
                 </div>
-              ) : (
+                {getStatusBadge(dataFrame.status)}
+              </CardTitle>
+              <p className="text-slate-400 text-sm">{dataFrame.description}</p>
+            </CardHeader>
+            
+            <CardContent>
+              {dataFrame.status === 'pending' && (
+                <div className="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-cyan-500/50 transition-colors">
+                  <Upload className="w-8 h-8 text-slate-400 mx-auto mb-3" />
+                  <p className="text-slate-300 mb-3">Upload XLSX file</p>
+                  <Input
+                    type="file"
+                    accept=".xlsx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(index, file);
+                    }}
+                    className="hidden"
+                    id={`file-upload-${index}`}
+                  />
+                  <Label htmlFor={`file-upload-${index}`}>
+                    <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 cursor-pointer">
+                      Select File
+                    </Button>
+                  </Label>
+                </div>
+              )}
+
+              {dataFrame.status === 'uploading' && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-blue-300">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm">Processing file...</span>
+                  </div>
+                  <Progress value={dataFrame.progress || 0} className="h-2" />
+                  <p className="text-xs text-slate-400">{Math.round(dataFrame.progress || 0)}% complete</p>
+                </div>
+              )}
+
+              {dataFrame.status === 'uploaded' && (
                 <div className="space-y-4">
-                  {uploadedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-600/20 rounded-lg">
-                          <File className="w-4 h-4 text-blue-400" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-white">{file.name}</div>
-                          <div className="text-sm text-slate-400">
-                            {file.size} • {file.records} records • {file.uploadedAt}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-green-600">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Active
-                        </Badge>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-600 text-red-400 hover:bg-red-600/20"
-                          onClick={() => handleDeleteFile(file.name)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                  <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-emerald-300 mb-2">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="font-medium">Successfully uploaded</span>
                     </div>
-                  ))}
+                    <div className="text-sm text-slate-300 space-y-1">
+                      <div>Records: <span className="text-emerald-300">{dataFrame.records}</span></div>
+                      <div>Size: <span className="text-emerald-300">{dataFrame.size}</span></div>
+                      <div>Uploaded: <span className="text-emerald-300">{dataFrame.uploadedAt}</span></div>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full border-red-500 text-red-400 hover:bg-red-500/20"
+                    onClick={() => handleRemoveFile(index)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove File
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
-
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white">API Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-                  <span className="text-white">Data Upload API</span>
-                  <Badge className="bg-green-600">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-                  <span className="text-white">DataFrame Processing</span>
-                  <Badge className="bg-green-600">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-                  <span className="text-white">Analytics Engine</span>
-                  <Badge className="bg-yellow-600">
-                    <AlertCircle className="w-3 h-3 mr-1" />
-                    Pending
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        ))}
       </div>
+
+      {/* Summary Card */}
+      <Card className="mt-8 bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-600/40">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Database className="w-5 h-5" />
+            System Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+              <div className="text-2xl font-bold text-cyan-300">{uploadedCount}</div>
+              <div className="text-slate-400">DataFrames Ready</div>
+            </div>
+            <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+              <div className="text-2xl font-bold text-yellow-300">{7 - uploadedCount}</div>
+              <div className="text-slate-400">Pending Uploads</div>
+            </div>
+            <div className="text-center p-4 bg-slate-700/50 rounded-lg">
+              <div className="text-2xl font-bold text-emerald-300">
+                {uploadedCount === 7 ? '100%' : `${Math.round((uploadedCount / 7) * 100)}%`}
+              </div>
+              <div className="text-slate-400">System Ready</div>
+            </div>
+          </div>
+          
+          {uploadedCount === 7 && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-emerald-900/30 to-green-900/30 border border-emerald-400/50 rounded-lg">
+              <div className="flex items-center gap-2 text-emerald-300">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-medium">All DataFrames Ready!</span>
+              </div>
+              <p className="text-emerald-200 text-sm mt-1">
+                Your payment system digital twin is now fully operational with all required data sources.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
