@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Export } from 'lucide-react';
 
 interface Alert {
   type: string;
@@ -46,8 +47,13 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
 
   const styles = getPriorityStyles(alert.priority);
 
+  const handleExport = () => {
+    console.log('Exporting alert:', alert);
+    // TODO: Implement actual export functionality
+  };
+
   return (
-    <div className={`bg-slate-800/60 border ${styles.border} rounded-lg p-4 shadow-lg ${styles.glow} backdrop-blur-sm`}>
+    <div className={`bg-gradient-to-br from-slate-800/80 to-slate-900/80 border ${styles.border} rounded-lg p-4 shadow-lg ${styles.glow} backdrop-blur-sm`}>
       <div className="flex justify-between items-start mb-3">
         <div>
           <h3 className="font-semibold text-white text-sm">{alert.type}</h3>
@@ -104,11 +110,20 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
       )}
       
       <div className="flex gap-2 mt-4">
-        <Button size="sm" className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-xs shadow-lg shadow-blue-500/25">
+        <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs shadow-lg shadow-cyan-500/25">
           Investigate
         </Button>
         <Button size="sm" variant="outline" className="border-slate-500 text-slate-300 hover:bg-slate-700/50 text-xs">
           Review
+        </Button>
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={handleExport}
+          className="border-emerald-500 text-emerald-300 hover:bg-emerald-500/20 text-xs ml-auto"
+        >
+          <Export className="w-3 h-3 mr-1" />
+          Export
         </Button>
       </div>
     </div>

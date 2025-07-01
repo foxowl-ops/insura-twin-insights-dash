@@ -9,19 +9,18 @@ const DashboardHeader = () => {
     <div className="mb-8">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Payment System Digital Twin</h1>
-          <p className="text-blue-300">Real-time monitoring • Anomaly detection • Business intelligence</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent mb-2">
+            Payment System Digital Twin
+          </h1>
+          <p className="text-cyan-300 text-lg">Real-time monitoring • Anomaly detection • Business intelligence</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-green-900/20 px-3 py-1 rounded-full border border-green-500/30">
-            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
-            <span className="text-sm text-green-300 font-medium">System Healthy</span>
-          </div>
-          <div className="text-sm text-cyan-300 bg-cyan-900/20 px-3 py-1 rounded-lg border border-cyan-500/30">
-            Processing: <span className="font-bold text-cyan-200">847 TPS</span>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-900/30 to-green-900/30 px-4 py-2 rounded-full border border-emerald-400/50 shadow-lg shadow-emerald-500/20">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
+            <span className="text-emerald-300 font-medium">System Healthy</span>
           </div>
           <Link to="/upload">
-            <Button variant="outline" size="sm" className="border-blue-500 text-blue-300 hover:bg-blue-500/20 hover:text-blue-200 transition-all">
+            <Button variant="outline" size="sm" className="border-cyan-400 text-cyan-300 hover:bg-cyan-500/20 hover:text-cyan-200 transition-all shadow-lg shadow-cyan-500/20">
               <Database className="w-4 h-4 mr-2" />
               Manage Data
             </Button>

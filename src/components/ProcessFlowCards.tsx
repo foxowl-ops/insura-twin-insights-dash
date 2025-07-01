@@ -58,11 +58,11 @@ const ProcessFlowCards = () => {
     <>
       {/* Section Headers */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 p-4 rounded-lg border border-indigo-500/30 shadow-lg">
-          <h3 className="text-indigo-200 font-semibold">Policy to payment stages(Online and Opus collection)</h3>
+        <div className="bg-gradient-to-r from-indigo-700 to-blue-700 p-4 rounded-lg border border-indigo-400/30 shadow-lg shadow-indigo-500/20">
+          <h3 className="text-indigo-100 font-semibold">Policy to payment stages(Online and Opus collection)</h3>
         </div>
-        <div className="bg-gradient-to-r from-violet-800 to-violet-900 p-4 rounded-lg border border-violet-500/30 shadow-lg">
-          <h3 className="text-violet-200 font-semibold">Payment to policy</h3>
+        <div className="bg-gradient-to-r from-violet-700 to-purple-700 p-4 rounded-lg border border-violet-400/30 shadow-lg shadow-violet-500/20">
+          <h3 className="text-violet-100 font-semibold">Payment to policy</h3>
         </div>
       </div>
 
@@ -70,15 +70,15 @@ const ProcessFlowCards = () => {
       <div className="grid grid-cols-5 gap-4">
         {processFlowData.map((process, index) => (
           <div key={index} className="space-y-3">
-            <div className={`${process.color} ${process.textColor} rounded-xl p-4 relative shadow-xl`}>
+            <div className={`${process.color} ${process.textColor} rounded-xl p-4 relative shadow-xl ring-1 ring-white/20`}>
               <h3 className="font-bold text-lg mb-4">{process.title}</h3>
               <div className="absolute top-2 right-2 w-3 h-3 bg-white/30 rounded-full"></div>
             </div>
-            <div className="bg-white text-black p-3 rounded-lg shadow-lg border border-gray-200">
+            <div className="bg-gradient-to-br from-white to-gray-50 text-gray-800 p-3 rounded-lg shadow-lg border border-gray-200">
               <div className="text-xs text-gray-500 font-medium">Count</div>
               <div className="font-bold text-xl text-indigo-600">{process.count}</div>
             </div>
-            <div className="bg-white text-black p-3 rounded-lg shadow-lg border border-gray-200">
+            <div className="bg-gradient-to-br from-white to-gray-50 text-gray-800 p-3 rounded-lg shadow-lg border border-gray-200">
               <div className="text-xs text-gray-500 font-medium">Total amount</div>
               <div className="font-bold text-xl text-emerald-600">{process.totalAmount}</div>
             </div>
