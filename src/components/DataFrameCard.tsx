@@ -82,11 +82,13 @@ export const DataFrameCard = ({ dataFrame, index, onFileUpload, onRemoveFile }: 
               className="hidden"
               id={`file-upload-${index}`}
             />
-            <Label htmlFor={`file-upload-${index}`}>
-              <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 cursor-pointer">
-                Select File
-              </Button>
-            </Label>
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 cursor-pointer"
+              onClick={() => document.getElementById(`file-upload-${index}`)?.click()}
+            >
+              Select File
+            </Button>
           </div>
         )}
 
