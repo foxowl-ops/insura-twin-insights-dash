@@ -150,6 +150,63 @@ const DataUpload = () => {
   };
 
   const uploadedCount = dataFrames.filter(df => df.status === 'uploaded').length;
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleProcessFiles = async () => {
+    if (uploadedCount === 0) {
+      toast({
+        title: "No Files to Process",
+        description: "Please upload at least one file before processing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      // Get all uploaded files
+      const uploadedFiles = dataFrames.filter(df => df.status === 'uploaded' && df.file);
+      
+      // Call FastAPI backend to process files
+      const formData = new FormData();
+      uploadedFiles.forEach((df) => {
+        if (df.file) {
+          formData.append('files', df.file);
+          formData.append('dataframe_names', df.name);
+        }
+      });
+
+      // Replace with your actual FastAPI backend URL
+      const response = await fetch('http://localhost:8000/process-dataframes', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "Processing Complete",
+        description: `Successfully processed ${uploadedFiles.length} dataframes into the system.`,
+      });
+
+      console.log('Processing result:', result);
+      
+    } catch (error) {
+      console.error('Error processing files:', error);
+      toast({
+        title: "Processing Failed",
+        description: "Failed to process files. Make sure your FastAPI backend is running.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white p-6">
@@ -299,6 +356,33 @@ const DataUpload = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Process Files Button */}
+      {uploadedCount > 0 && (
+        <div className="mt-8 text-center">
+          <Button
+            onClick={handleProcessFiles}
+            disabled={isProcessing}
+            size="lg"
+            className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white px-8 py-3"
+          >
+            {isProcessing ? (
+              <>
+                <Clock className="w-5 h-5 mr-2 animate-spin" />
+                Processing Files...
+              </>
+            ) : (
+              <>
+                <Database className="w-5 h-5 mr-2" />
+                Process Files ({uploadedCount})
+              </>
+            )}
+          </Button>
+          <p className="text-slate-400 text-sm mt-2">
+            Send uploaded files to FastAPI backend for dataframe processing
+          </p>
+        </div>
+      )}
     </div>
   );
 };
