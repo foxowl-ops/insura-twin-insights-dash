@@ -70,15 +70,15 @@ const ProcessFlowCards = () => {
       <div className="grid grid-cols-5 gap-4">
         {processFlowData.map((process, index) => (
           <div key={index} className="space-y-3">
-            <div className={`${process.color} ${process.textColor} rounded-xl p-4 relative shadow-xl ring-1 ring-white/20`}>
-              <h3 className="font-bold text-lg mb-4">{process.title}</h3>
+            <div className={`${process.color} ${process.textColor} rounded-xl p-4 relative shadow-xl ring-1 ring-white/20 h-20 flex items-center`}>
+              <h3 className="font-bold text-lg">{process.title}</h3>
               <div className="absolute top-2 right-2 w-3 h-3 bg-white/30 rounded-full"></div>
             </div>
-            <div className="bg-gradient-to-br from-white to-gray-50 text-gray-800 p-3 rounded-lg shadow-lg border border-gray-200">
+            <div className="bg-gradient-to-br from-white to-gray-50 text-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 h-16 flex flex-col justify-center">
               <div className="text-xs text-gray-500 font-medium">Count</div>
               <div className="font-bold text-xl text-indigo-600">{process.count}</div>
             </div>
-            <div className="bg-gradient-to-br from-white to-gray-50 text-gray-800 p-3 rounded-lg shadow-lg border border-gray-200">
+            <div className="bg-gradient-to-br from-white to-gray-50 text-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 h-16 flex flex-col justify-center">
               <div className="text-xs text-gray-500 font-medium">Total amount</div>
               <div className="font-bold text-xl text-emerald-600">{process.totalAmount}</div>
             </div>
