@@ -108,18 +108,18 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
         </div>
       )}
       
-      <div className="flex gap-2 mt-4">
-        <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs shadow-lg shadow-cyan-500/25">
+      <div className="flex gap-1 mt-4 flex-wrap">
+        <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs shadow-lg shadow-cyan-500/25 flex-1 min-w-0">
           Investigate
         </Button>
-        <Button size="sm" variant="outline" className="border-slate-500 text-slate-300 hover:bg-slate-700/50 text-xs">
+        <Button size="sm" variant="outline" className="border-slate-500 text-slate-300 hover:bg-slate-700/50 text-xs flex-1 min-w-0">
           Review
         </Button>
         <Button 
           size="sm" 
           variant="outline" 
           onClick={handleExport}
-          className="border-emerald-500 text-emerald-300 hover:bg-emerald-500/20 text-xs ml-auto"
+          className="border-emerald-500 text-emerald-300 hover:bg-emerald-500/20 text-xs flex-1 min-w-0"
         >
           <Download className="w-3 h-3 mr-1" />
           Export
