@@ -3,6 +3,7 @@ import React from 'react';
 import DashboardHeader from '../components/DashboardHeader';
 import PaymentFlowAnalysis from '../components/PaymentFlowAnalysis';
 import CriticalAlerts from '../components/CriticalAlerts';
+import SankeyChart from '../components/SankeyChart';
 
 const Dashboard = () => {
   return (
@@ -13,6 +14,7 @@ const Dashboard = () => {
         {/* Left Column - Payment Flow Analysis (3/4 width) */}
         <div className="lg:col-span-3 space-y-6">
           <PaymentFlowAnalysis />
+          <SankeyChart />
         </div>
 
         {/* Right Column - Critical Alerts (1/4 width) */}
